@@ -92,6 +92,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/articles" className="hover:text-white transition-colors">
+                  Artikel Edukasi
+                </Link>
+              </li>
+              <li>
                 <Link to="/order" className="hover:text-white transition-colors">
                   Pemesanan
                 </Link>
@@ -113,12 +118,6 @@ export const Footer = () => {
               <li>
                 <Link to="/products" className="hover:text-white transition-colors flex items-center gap-1">
                   <span>Lele Segar Konsumsi (8-10)</span>
-                  <ArrowUpRight className="w-3 h-3 text-[#78B98B]" />
-                </Link>
-              </li>
-              <li>
-                <Link to="/products" className="hover:text-white transition-colors flex items-center gap-1">
-                  <span>Lele Pecel Lele (10-12)</span>
                   <ArrowUpRight className="w-3 h-3 text-[#78B98B]" />
                 </Link>
               </li>

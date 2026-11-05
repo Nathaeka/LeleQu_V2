@@ -9,15 +9,25 @@ import {
   Smartphone,
   ExternalLink,
   CheckCircle2,
-  Clock,
+  Package,
 } from 'lucide-react';
 
 export const DashboardOverview = () => {
   const { products, articles } = useApp();
 
   const totalProducts = products.length;
-  const readyProducts = products.filter((p) => p.is_available).length;
-  const poProducts = products.filter((p) => !p.is_available).length;
+  const freshProducts = products.filter(
+    (p) =>
+      p.grade &&
+      (p.grade.toLowerCase().includes('konsumsi') || p.grade.toLowerCase().includes('super'))
+  ).length;
+  const processedProducts = products.filter(
+    (p) =>
+      p.grade &&
+      (p.grade.toLowerCase().includes('frozen') ||
+        p.grade.toLowerCase().includes('fillet') ||
+        p.grade.toLowerCase().includes('olahan'))
+  ).length;
   const totalArticles = articles.length;
 
   const formatRupiah = (val) => {
@@ -110,35 +120,35 @@ export const DashboardOverview = () => {
           <div className="text-2xl font-extrabold text-[#123F2E] font-mono tabular-nums">
             {totalProducts}
           </div>
-          <span className="text-[11px] text-[#6B786F] block">Komoditas & olahan lele</span>
+          <span className="text-[11px] text-[#6B786F] block">Katalog komoditas & olahan</span>
         </div>
 
-        {/* Stok Tersedia */}
+        {/* Lele Segar Konsumsi */}
         <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#6B786F]">Stok Tersedia</span>
+            <span className="text-xs font-semibold text-[#6B786F]">Lele Segar Hidup</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-emerald-700 font-mono tabular-nums">
-            {readyProducts}
+            {freshProducts}
           </div>
-          <span className="text-[11px] text-[#6B786F] block">Siap ditimbang di kolam</span>
+          <span className="text-[11px] text-[#6B786F] block">Konsumsi & super jumbo</span>
         </div>
 
-        {/* Pre-Order / PO */}
+        {/* Produk Olahan & Frozen */}
         <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#6B786F]">Pre-Order (PO)</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+            <span className="text-xs font-semibold text-[#6B786F]">Olahan & Frozen</span>
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
+              <Package className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-amber-700 font-mono tabular-nums">
-            {poProducts}
+          <div className="text-2xl font-extrabold text-teal-700 font-mono tabular-nums">
+            {processedProducts}
           </div>
-          <span className="text-[11px] text-[#6B786F] block">Jadwal panen mendatang</span>
+          <span className="text-[11px] text-[#6B786F] block">Vacuum & fillet boneless</span>
         </div>
 
         {/* Total Artikel */}
@@ -184,7 +194,6 @@ export const DashboardOverview = () => {
                 <th className="py-3.5 px-6">Ukuran / Kategori</th>
                 <th className="py-3.5 px-6">Harga per Kg</th>
                 <th className="py-3.5 px-6">Min. Order</th>
-                <th className="py-3.5 px-6">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -216,17 +225,6 @@ export const DashboardOverview = () => {
                   </td>
                   <td className="py-3.5 px-6 text-neutral-600 font-medium">
                     {p.min_order || '3 kg'}
-                  </td>
-                  <td className="py-3.5 px-6">
-                    <span
-                      className={`px-2 py-0.5 rounded text-[11px] font-medium ${
-                        p.is_available
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-amber-50 text-amber-700'
-                      }`}
-                    >
-                      {p.is_available ? 'Stok Tersedia' : 'Pemesanan PO'}
-                    </span>
                   </td>
                 </tr>
               ))}

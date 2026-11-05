@@ -12,6 +12,7 @@ export const Navbar = () => {
     { name: 'Beranda', path: '/' },
     { name: 'Tentang Kami', path: '/about' },
     { name: 'Produk Ikan', path: '/products' },
+    { name: 'Artikel', path: '/articles' },
     { name: 'Pemesanan', path: '/order' },
     { name: 'Hubungi Kami', path: '/contact' },
   ];

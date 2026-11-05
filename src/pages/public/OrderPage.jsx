@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
+  Calendar,
 } from 'lucide-react';
 
 export const OrderPage = () => {
@@ -22,7 +23,14 @@ export const OrderPage = () => {
   const [pickupDate, setPickupDate] = useState('');
   const [pickupTime, setPickupTime] = useState('16:00 WIB');
   const [notes, setNotes] = useState('');
+
+  // Field errors state for frontend validation (Section F)
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [createdOrder, setCreatedOrder] = useState(null);
+
+  // Today's date in YYYY-MM-DD for min date
+  const todayStr = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     if (orderProduct) {
@@ -36,7 +44,7 @@ export const OrderPage = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
       setPickupDate(tomorrow.toISOString().split('T')[0]);
     }
-  }, [orderProduct, products]);
+  }, [orderProduct, products, selectedProductId, pickupDate]);
 
   const currentProduct =
     products.find((p) => p.id === selectedProductId) || products[0];
@@ -49,28 +57,84 @@ export const OrderPage = () => {
       style: 'currency',
       currency: 'IDR',
       maximumFractionDigits: 0,
-    }).format(val);
+    }).format(val || 0);
+  };
+
+  // Validation function
+  const validate = () => {
+    const errs = {};
+
+    // 1. Customer Name
+    const trimmedName = customerName.trim();
+    if (!trimmedName) {
+      errs.customerName = 'Nama pemesan wajib diisi.';
+    } else if (trimmedName.length < 3) {
+      errs.customerName = 'Nama pemesan minimal 3 karakter.';
+    }
+
+    // 2. WhatsApp Phone
+    const cleanedPhone = customerPhone.replace(/[\s\-()]/g, '');
+    const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,11}$/;
+    if (!customerPhone.trim()) {
+      errs.customerPhone = 'Nomor WhatsApp wajib diisi.';
+    } else if (!phoneRegex.test(cleanedPhone)) {
+      errs.customerPhone =
+        'Format nomor tidak valid. Gunakan format Indonesia (contoh: 081234567890 atau +6281234567890).';
+    }
+
+    // 3. Product Selection
+    if (!currentProduct || !selectedProductId) {
+      errs.product = 'Produk lele wajib dipilih.';
+    }
+
+    // 4. Quantity
+    const qty = Number(quantityKg);
+    if (!quantityKg || isNaN(qty) || qty <= 0) {
+      errs.quantity = 'Jumlah pesanan harus berupa angka lebih dari 0 kg.';
+    } else if (qty > 1000) {
+      errs.quantity = 'Untuk pesanan di atas 1.000 kg, silakan hubungi langsung via WhatsApp.';
+    }
+
+    // 5. Pickup Date
+    if (!pickupDate) {
+      errs.pickupDate = 'Tanggal pengambilan di kolam wajib diisi.';
+    } else if (pickupDate < todayStr) {
+      errs.pickupDate = 'Tanggal pengambilan tidak boleh di masa lampau.';
+    }
+
+    // 6. Pickup Time
+    if (!pickupTime) {
+      errs.pickupTime = 'Jam pengambilan wajib dipilih.';
+    }
+
+    return errs;
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const validationErrors = validate();
+    setErrors(validationErrors);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!currentProduct) return;
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    setTouched({
+      customerName: true,
+      customerPhone: true,
+      product: true,
+      quantity: true,
+      pickupDate: true,
+      pickupTime: true,
+    });
 
-    if (!customerName.trim() || !customerPhone.trim()) {
-      showToast('Mohon isi nama lengkap dan nomor WhatsApp aktif Anda.', 'error');
+    if (Object.keys(validationErrors).length > 0) {
+      showToast('Mohon perbaiki isian formulir yang belum sesuai.', 'error');
       return;
     }
 
-    if (quantityKg < 1) {
-      showToast('Jumlah pesanan minimal 1 kilogram.', 'error');
-      return;
-    }
-
-    if (!pickupDate) {
-      showToast('Mohon tentukan tanggal rencana pengambilan di kolam.', 'error');
-      return;
-    }
-
+    // Process order simulation (frontend UTS)
     const orderResult = addOrder({
       customer_name: customerName.trim(),
       customer_phone: customerPhone.trim(),
@@ -78,7 +142,7 @@ export const OrderPage = () => {
       product_name: currentProduct.name,
       product_grade: currentProduct.grade,
       price_per_kg: currentProduct.price_per_kg,
-      quantity_kg: quantityKg,
+      quantity_kg: Number(quantityKg),
       total_price: subtotal,
       pickup_date: pickupDate,
       pickup_time: pickupTime,
@@ -93,7 +157,7 @@ export const OrderPage = () => {
   const getWhatsAppUrl = () => {
     if (!createdOrder) return '#';
     const msg = encodeURIComponent(
-      `Halo LeleQu, saya telah membuat pesanan melalui website:\n\n*Nomor Pesanan:* ${createdOrder.order_number}\n*Nama:* ${createdOrder.customer_name}\n*Produk:* ${createdOrder.product_name}\n*Ukuran:* ${createdOrder.product_grade}\n*Jumlah:* ${createdOrder.quantity_kg} kg\n*Total:* ${formatRupiah(createdOrder.total_price)}\n*Rencana Ambil:* ${createdOrder.pickup_date} (${createdOrder.pickup_time})\n*Metode:* Pengambilan Langsung (Pickup Only)\n\nMohon konfirmasi kesiapan pesanan. Terima kasih!`
+      `Halo LeleQu, saya telah membuat pesanan melalui website:\n\n*Nomor Pesanan:* ${createdOrder.order_number}\n*Nama:* ${createdOrder.customer_name}\n*Nomor WA:* ${createdOrder.customer_phone}\n*Produk:* ${createdOrder.product_name}\n*Ukuran:* ${createdOrder.product_grade}\n*Jumlah:* ${createdOrder.quantity_kg} kg\n*Total:* ${formatRupiah(createdOrder.total_price)}\n*Rencana Ambil:* ${createdOrder.pickup_date} (${createdOrder.pickup_time})\n*Metode:* Pengambilan Langsung (Pickup Only)\n\nMohon konfirmasi kesiapan pesanan di kolam. Terima kasih!`
     );
     return `https://wa.me/${settings.whatsapp}?text=${msg}`;
   };
@@ -116,7 +180,7 @@ export const OrderPage = () => {
         </div>
       </section>
 
-      {/* 2. WIDE HORIZONTAL FORM CONTAINER (MEMANJANG, TANPA PERLU DI-SCROLL) */}
+      {/* 2. WIDE HORIZONTAL FORM CONTAINER */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
           {createdOrder ? (
@@ -163,7 +227,7 @@ export const OrderPage = () => {
                 <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                   <p>
-                    Ikan dipuasakan dalam air mengalir agar bebas bau lumpur dan dipersiapkan hidup saat jam penjemputan.
+                    Ikan dipuasakan dalam air mengalir agar bebas bau lumpur dan dipersiapkan hidup saat jam penjemputan di kolam.
                   </p>
                 </div>
               </div>
@@ -221,8 +285,8 @@ export const OrderPage = () => {
               </div>
             </div>
           ) : (
-            /* Wide 2-Column Form */
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12">
+            /* Input Form */
+            <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 lg:grid-cols-12">
               {/* Left Column: Form Fields */}
               <div className="lg:col-span-7 p-6 sm:p-8 space-y-5 border-b lg:border-b-0 lg:border-r border-neutral-100">
                 {/* 1. Produk & Volume */}
@@ -234,13 +298,23 @@ export const OrderPage = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                     <div className="sm:col-span-8">
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Pilihan Produk Ikan Lele *
+                      <label htmlFor="productSelect" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Pilihan Produk Ikan Lele <span className="text-red-500">*</span>
                       </label>
                       <select
+                        id="productSelect"
                         value={selectedProductId}
-                        onChange={(e) => setSelectedProductId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs text-[#202923] font-medium focus:border-[#1B6044] focus:outline-none bg-white"
+                        onChange={(e) => {
+                          setSelectedProductId(e.target.value);
+                          if (errors.product) setErrors((prev) => ({ ...prev, product: null }));
+                        }}
+                        onBlur={() => handleBlur('product')}
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#202923] font-medium focus:outline-none bg-white transition-colors ${
+                          errors.product && touched.product
+                            ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                            : 'border-neutral-300 focus:border-[#1B6044]'
+                        }`}
+                        aria-invalid={Boolean(errors.product && touched.product)}
                       >
                         {products.map((p) => (
                           <option key={p.id} value={p.id}>
@@ -248,25 +322,47 @@ export const OrderPage = () => {
                           </option>
                         ))}
                       </select>
+                      {errors.product && touched.product && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.product}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="sm:col-span-4">
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Kuantitas (Kg) *
+                      <label htmlFor="quantityInput" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Kuantitas (Kg) <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
+                          id="quantityInput"
                           type="number"
                           min="1"
                           required
                           value={quantityKg}
-                          onChange={(e) => setQuantityKg(Math.max(1, parseInt(e.target.value) || 0))}
-                          className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-neutral-300 text-xs font-bold font-mono text-[#202923] focus:border-[#1B6044] focus:outline-none"
+                          onChange={(e) => {
+                            setQuantityKg(e.target.value);
+                            if (errors.quantity) setErrors((prev) => ({ ...prev, quantity: null }));
+                          }}
+                          onBlur={() => handleBlur('quantity')}
+                          className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border text-xs font-bold font-mono text-[#202923] focus:outline-none transition-colors ${
+                            errors.quantity && touched.quantity
+                              ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                              : 'border-neutral-300 focus:border-[#1B6044]'
+                          }`}
+                          aria-invalid={Boolean(errors.quantity && touched.quantity)}
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400 pointer-events-none">
                           KG
                         </span>
                       </div>
+                      {errors.quantity && touched.quantity && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.quantity}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -277,9 +373,12 @@ export const OrderPage = () => {
                       <button
                         key={kg}
                         type="button"
-                        onClick={() => setQuantityKg(kg)}
+                        onClick={() => {
+                          setQuantityKg(kg);
+                          if (errors.quantity) setErrors((prev) => ({ ...prev, quantity: null }));
+                        }}
                         className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                          quantityKg === kg
+                          Number(quantityKg) === kg
                             ? 'bg-[#123F2E] text-white shadow-2xs'
                             : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                         }`}
@@ -299,31 +398,61 @@ export const OrderPage = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Nama Lengkap Pemesan *
+                      <label htmlFor="customerNameInput" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Nama Lengkap Pemesan <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="customerNameInput"
                         type="text"
-                        required
-                        placeholder="Contoh: Pak Budi / Bu Siti"
+                        placeholder="Contoh: Budi Santoso"
                         value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none"
+                        onChange={(e) => {
+                          setCustomerName(e.target.value);
+                          if (errors.customerName) setErrors((prev) => ({ ...prev, customerName: null }));
+                        }}
+                        onBlur={() => handleBlur('customerName')}
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#202923] focus:outline-none transition-colors ${
+                          errors.customerName && touched.customerName
+                            ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                            : 'border-neutral-300 focus:border-[#1B6044]'
+                        }`}
+                        aria-invalid={Boolean(errors.customerName && touched.customerName)}
                       />
+                      {errors.customerName && touched.customerName && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.customerName}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Nomor WhatsApp Aktif *
+                      <label htmlFor="customerPhoneInput" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Nomor WhatsApp Aktif <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="customerPhoneInput"
                         type="tel"
-                        required
-                        placeholder="+62 812-xxxx-xxxx"
+                        placeholder="081234567890 atau +628123456789"
                         value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none"
+                        onChange={(e) => {
+                          setCustomerPhone(e.target.value);
+                          if (errors.customerPhone) setErrors((prev) => ({ ...prev, customerPhone: null }));
+                        }}
+                        onBlur={() => handleBlur('customerPhone')}
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#202923] focus:outline-none font-mono transition-colors ${
+                          errors.customerPhone && touched.customerPhone
+                            ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                            : 'border-neutral-300 focus:border-[#1B6044]'
+                        }`}
+                        aria-invalid={Boolean(errors.customerPhone && touched.customerPhone)}
                       />
+                      {errors.customerPhone && touched.customerPhone && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.customerPhone}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -337,26 +466,54 @@ export const OrderPage = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Tanggal Pengambilan *
+                      <label htmlFor="pickupDateInput" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Tanggal Pengambilan <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="date"
-                        required
-                        value={pickupDate}
-                        onChange={(e) => setPickupDate(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none bg-white"
-                      />
+                      <div className="relative">
+                        <input
+                          id="pickupDateInput"
+                          type="date"
+                          min={todayStr}
+                          value={pickupDate}
+                          onChange={(e) => {
+                            setPickupDate(e.target.value);
+                            if (errors.pickupDate) setErrors((prev) => ({ ...prev, pickupDate: null }));
+                          }}
+                          onBlur={() => handleBlur('pickupDate')}
+                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#202923] focus:outline-none bg-white transition-colors ${
+                            errors.pickupDate && touched.pickupDate
+                              ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                              : 'border-neutral-300 focus:border-[#1B6044]'
+                          }`}
+                          aria-invalid={Boolean(errors.pickupDate && touched.pickupDate)}
+                        />
+                      </div>
+                      {errors.pickupDate && touched.pickupDate && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.pickupDate}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                        Jam Pengambilan *
+                      <label htmlFor="pickupTimeSelect" className="block text-xs font-medium text-[#6B786F] mb-1">
+                        Jam Pengambilan <span className="text-red-500">*</span>
                       </label>
                       <select
+                        id="pickupTimeSelect"
                         value={pickupTime}
-                        onChange={(e) => setPickupTime(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none bg-white"
+                        onChange={(e) => {
+                          setPickupTime(e.target.value);
+                          if (errors.pickupTime) setErrors((prev) => ({ ...prev, pickupTime: null }));
+                        }}
+                        onBlur={() => handleBlur('pickupTime')}
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#202923] focus:outline-none bg-white transition-colors ${
+                          errors.pickupTime && touched.pickupTime
+                            ? 'border-red-400 bg-red-50/20 focus:border-red-500'
+                            : 'border-neutral-300 focus:border-[#1B6044]'
+                        }`}
+                        aria-invalid={Boolean(errors.pickupTime && touched.pickupTime)}
                       >
                         <option value="08:30 WIB">Pagi: 08:30 WIB</option>
                         <option value="10:00 WIB">Pagi: 10:00 WIB</option>
@@ -366,16 +523,23 @@ export const OrderPage = () => {
                         <option value="16:30 WIB">Sore: 16:30 WIB (Waktu Panen Ideal)</option>
                         <option value="17:00 WIB">Sore: 17:00 WIB</option>
                       </select>
+                      {errors.pickupTime && touched.pickupTime && (
+                        <p className="text-red-600 text-[11px] flex items-center gap-1 mt-1 font-medium">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{errors.pickupTime}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* 4. Catatan Opsional */}
                 <div className="pt-3 border-t border-neutral-100">
-                  <label className="block text-xs font-medium text-[#6B786F] mb-1">
+                  <label htmlFor="notesInput" className="block text-xs font-medium text-[#6B786F] mb-1">
                     Catatan Tambahan untuk Petugas Kolam (Opsional)
                   </label>
                   <input
+                    id="notesInput"
                     type="text"
                     placeholder="Contoh: Disiangi bersih / minta lele yang lincah siap olah..."
                     value={notes}
@@ -393,7 +557,7 @@ export const OrderPage = () => {
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-100 shrink-0">
                       <img
                         src={currentProduct?.image_url}
-                        alt={currentProduct?.name}
+                        alt={currentProduct?.name || 'Ikan lele'}
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -439,7 +603,7 @@ export const OrderPage = () => {
                     </div>
                     <div className="flex items-center justify-between text-xs text-neutral-600">
                       <span>Kuantitas Pesanan:</span>
-                      <span className="font-mono font-bold text-[#123F2E]">{quantityKg} kg</span>
+                      <span className="font-mono font-bold text-[#123F2E]">{Number(quantityKg) || 0} kg</span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-neutral-600">
                       <span>Layanan Pengiriman:</span>
@@ -458,7 +622,7 @@ export const OrderPage = () => {
                 <div className="space-y-2 pt-2">
                   <button
                     type="submit"
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#1B6044] hover:bg-[#123F2E] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
+                    className="w-full py-3.5 px-4 rounded-xl bg-[#1B6044] hover:bg-[#123F2E] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99] cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Kirim Pesanan Sekarang</span>

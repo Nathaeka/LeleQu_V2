@@ -9,6 +9,7 @@ import { AboutPage } from './pages/public/AboutPage.jsx';
 import { ProductsPage } from './pages/public/ProductsPage.jsx';
 import { OrderPage } from './pages/public/OrderPage.jsx';
 import { ArticlesPage } from './pages/public/ArticlesPage.jsx';
+import { ArticleDetailPage } from './pages/public/ArticleDetailPage.jsx';
 import { ContactPage } from './pages/public/ContactPage.jsx';
 
 // Admin Layout & Pages
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="order" element={<OrderPage />} />
             <Route path="articles" element={<ArticlesPage />} />
+            <Route path="articles/:slug" element={<ArticleDetailPage />} />
             <Route path="contact" element={<ContactPage />} />
           </Route>
 

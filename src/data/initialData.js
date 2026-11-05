@@ -13,19 +13,6 @@ export const initialProducts = [
     created_at: '2026-10-20T08:00:00Z',
   },
   {
-    id: 'prod-2',
-    name: 'Ikan Lele Pecel Lele (10–12 ekor/kg)',
-    slug: 'ikan-lele-pecel-lele-10-12',
-    description: 'Ukuran ideal dan standar favorit warung makan pecel lele. Porsi pas di piring saji dengan rasio 10–12 ekor per kilogram. Kulit tipis dan renyah garing saat digoreng, daging tetap lembut dan manis alami.',
-    grade: 'Pecel Lele (10–12 ekor/kg)',
-    price_per_kg: 26000,
-    image_url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
-    is_available: true,
-    min_order: '5 kg',
-    characteristics: ['Standar warung pecel lele', 'Rasio 10-12 ekor/kg', 'Renyah optimal saat digoreng', 'Penimbangan akurat di kolam'],
-    created_at: '2026-10-22T08:00:00Z',
-  },
-  {
     id: 'prod-3',
     name: 'Ikan Lele Super / Besar (6–8 ekor/kg)',
     slug: 'ikan-lele-super-besar-6-8',
@@ -148,7 +135,7 @@ Berikan pakan pada jam-jam tetap setiap hari, biasanya pada pagi hari setelah su
     content: `Kualitas daging lele sangat ditentukan oleh penanganan pasca-panen. Di LeleQu, setiap ikan yang selesai dipanen menjalani tahap pemberokan terlebih dahulu.
 
 Tahapan SOP Panen LeleQu:
-- Sortir Ukuran Presisi: Ikan dipilah berdasarkan kategori ukuran konsumsi (8-10 ekor/kg), pecel lele (10-12 ekor/kg), dan super (6-8 ekor/kg).
+- Sortir Ukuran Presisi: Ikan dipilah berdasarkan kategori ukuran konsumsi (8-10 ekor/kg) dan super jumbo (6-8 ekor/kg).
 - Pemberokan Air Mengalir 24 Jam: Ikan dipuasakan dalam bak penampungan khusus dengan air bersih mengalir untuk membersihkan saluran pencernaan ikan dari sisa pakan dan kotoran.
 - Hasil Daging Bersih: Proses ini menjamin daging ikan lele memiliki tekstur kenyal gurih dan tidak berbau lumpur saat diolah oleh konsumen.
 - Pengambilan Langsung di Lokasi: Ikan lele ditimbang secara langsung di depan pelanggan saat jadwal pengambilan, menjamin keakuratan bobot dan kesegaran terbaik.`,
@@ -158,103 +145,7 @@ Tahapan SOP Panen LeleQu:
   },
 ];
 
-export const initialOrders = [
-  {
-    id: 'ord-1',
-    order_number: 'ORD-2024-0524',
-    customer_name: 'Pak Budi (Warung Lesehan)',
-    customer_phone: '+62 xxx-xxxx-xxxx',
-    product_id: 'prod-1',
-    product_name: 'Ikan Lele Segar — Ukuran Konsumsi',
-    product_grade: 'Konsumsi (8–10 ekor/kg)',
-    price_per_kg: 25000,
-    quantity_kg: 20,
-    total_price: 500000,
-    pickup_date: '2026-11-04',
-    pickup_time: '16:00 WIB',
-    notes: 'Mohon lele segar hidup dalam drum, ditimbang saat pengambilan sore jam 16:00.',
-    pickup_location: 'Kolam LeleQu Bobotsari — Jl. Raya Kolam Berkah No. 18, Purbalingga',
-    status: 'Siap Diambil',
-    created_at: '2026-11-03 08:30',
-  },
-  {
-    id: 'ord-2',
-    order_number: 'ORD-2024-0525',
-    customer_name: 'Pak Andi (Catering Berkah)',
-    customer_phone: '+62 xxx-xxxx-xxxx',
-    product_id: 'prod-2',
-    product_name: 'Ikan Lele Segar — Ukuran Pecel Lele',
-    product_grade: 'Pecel Lele (10–12 ekor/kg)',
-    price_per_kg: 26000,
-    quantity_kg: 25,
-    total_price: 650000,
-    pickup_date: '2026-11-04',
-    pickup_time: '16:30 WIB',
-    notes: 'Pengambilan langsung di kolam. Siangi & bersihkan jika memungkinkan.',
-    pickup_location: 'Kolam LeleQu Bobotsari — Jl. Raya Kolam Berkah No. 18, Purbalingga',
-    status: 'Dikonfirmasi',
-    created_at: '2026-11-03 09:15',
-  },
-  {
-    id: 'ord-3',
-    order_number: 'ORD-2024-0526',
-    customer_name: 'Bu Siti Sumirah',
-    customer_phone: '+62 xxx-xxxx-xxxx',
-    product_id: 'prod-4',
-    product_name: 'Ikan Lele Frozen Siap Masak',
-    product_grade: 'Frozen Siap Masak (Pack 1 kg)',
-    price_per_kg: 28000,
-    quantity_kg: 10,
-    total_price: 280000,
-    pickup_date: '2026-11-05',
-    pickup_time: '10:00 WIB',
-    notes: 'Lele frozen kemasan 1 kg sebanyak 10 pack.',
-    pickup_location: 'Kolam LeleQu Bobotsari — Jl. Raya Kolam Berkah No. 18, Purbalingga',
-    status: 'Menunggu Konfirmasi',
-    created_at: '2026-11-03 10:45',
-  },
-  {
-    id: 'ord-4',
-    order_number: 'ORD-2024-0520',
-    customer_name: 'Pak Widodo (Rumah Makan)',
-    customer_phone: '+62 xxx-xxxx-xxxx',
-    product_id: 'prod-3',
-    product_name: 'Ikan Lele Super / Besar (6–8 ekor/kg)',
-    product_grade: 'Super / Besar (6–8 ekor/kg)',
-    price_per_kg: 24000,
-    quantity_kg: 15,
-    total_price: 360000,
-    pickup_date: '2026-11-02',
-    pickup_time: '15:30 WIB',
-    notes: 'Sudah diambil dan lunas dibayar tunai di kolam.',
-    pickup_location: 'Kolam LeleQu Bobotsari — Jl. Raya Kolam Berkah No. 18, Purbalingga',
-    status: 'Selesai',
-    created_at: '2026-11-02 11:20',
-  },
-];
 
-export const initialMessages = [
-  {
-    id: 'msg-1',
-    name: 'Pak Budi (Warung Lesehan)',
-    email: 'budi.lesehan@gmail.com',
-    phone: '+62 xxx-xxxx-xxxx',
-    subject: 'Jadwal Pengambilan Lele Konsumsi',
-    message: 'Halo tim LeleQu, kami membutuhkan suplai rutin lele konsumsi 20 kg per hari dan akan kami ambil sendiri sore hari jam 16:00 ke lokasi kolam. Mohon konfirmasinya. Terima kasih.',
-    status: 'replied',
-    created_at: '2026-11-02 16:40',
-  },
-  {
-    id: 'msg-2',
-    name: 'Ibu Siti Sumirah',
-    email: 'sumirah.pasar@yahoo.com',
-    phone: '+62 xxx-xxxx-xxxx',
-    subject: 'Ketersediaan Lele Frozen & Fillet',
-    message: 'Selamat siang, apakah lele frozen vacuum pack dan fillet lele siap diambil besok pagi sekitar 15 kg? Lokasi penimbangan di kolam sebelah mana ya?',
-    status: 'unread',
-    created_at: '2026-11-03 07:15',
-  },
-];
 
 export const initialSettings = {
   company_name: 'LeleQu',

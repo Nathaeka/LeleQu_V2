@@ -73,24 +73,13 @@ export const ProductDetailModal = () => {
             {/* Top Bar with Category & Desktop Close */}
             <div>
               <div className="flex items-center justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-[#1B6044] bg-[#E8F3E9] px-2 py-0.5 rounded-md">
-                    Katalog Resmi LeleQu
-                  </span>
-                  <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
-                      selectedProduct.is_available
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-amber-50 text-amber-700'
-                    }`}
-                  >
-                    {selectedProduct.is_available ? 'Stok Kolam Tersedia' : 'Pemesanan PO'}
-                  </span>
-                </div>
+                <span className="text-[10px] font-bold tracking-wider uppercase text-[#1B6044] bg-[#E8F3E9] px-2 py-0.5 rounded-md">
+                  Katalog Resmi LeleQu
+                </span>
 
                 <button
                   onClick={() => setSelectedProduct(null)}
-                  className="hidden sm:flex w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 items-center justify-center transition-colors"
+                  className="hidden sm:flex w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 items-center justify-center transition-colors cursor-pointer"
                   aria-label="Tutup modal"
                 >
                   <X className="w-4 h-4" />

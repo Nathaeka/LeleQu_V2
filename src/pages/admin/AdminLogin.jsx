@@ -37,7 +37,7 @@ export const AdminLogin = () => {
             LeleQu Content Management System
           </h1>
           <p className="text-xs text-[#6B786F]">
-            Masuk untuk mengelola produk, artikel edukasi, kemitraan, dan pesan pelanggan.
+            Masuk untuk mengelola katalog produk, artikel edukasi, dan profil website LeleQu.
           </p>
         </div>
 

@@ -1,11 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-  initialProducts,
-  initialArticles,
-  initialOrders,
-  initialMessages,
-  initialSettings,
-} from '../data/initialData.js';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { initialProducts, initialArticles, initialSettings } from '../data/initialData.js';
 
 const AppContext = createContext(undefined);
 
@@ -23,57 +17,26 @@ const sanitizeLoadedProducts = (items) => {
     return {
       ...p,
       name: cleanName,
-      grade: p.grade.replace(/Grade\s*/gi, '').trim(),
-      description: p.description.replace(/Sangkuriang/gi, 'pilihan').replace(/Grade/gi, 'ukuran'),
+      grade: (p.grade || '').replace(/Grade\s*/gi, '').trim(),
+      description: (p.description || '')
+        .replace(/Sangkuriang/gi, 'pilihan')
+        .replace(/Grade/gi, 'ukuran'),
     };
   });
 };
 
 export const AppProvider = ({ children }) => {
-  // Products state (v3 with clean names)
-  const [products, setProducts] = useState(() => {
-    try {
-      const stored = localStorage.getItem('lelequ_products_v3');
-      if (stored) {
-        return sanitizeLoadedProducts(JSON.parse(stored));
-      }
-      return initialProducts;
-    } catch {
-      return initialProducts;
-    }
-  });
+  // Products state
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [errorProducts, setErrorProducts] = useState(null);
 
   // Articles state
-  const [articles, setArticles] = useState(() => {
-    try {
-      const stored = localStorage.getItem('lelequ_articles_v2');
-      return stored ? JSON.parse(stored) : initialArticles;
-    } catch {
-      return initialArticles;
-    }
-  });
+  const [articles, setArticles] = useState([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
+  const [errorArticles, setErrorArticles] = useState(null);
 
-  // Orders state
-  const [orders, setOrders] = useState(() => {
-    try {
-      const stored = localStorage.getItem('lelequ_orders_v2');
-      return stored ? JSON.parse(stored) : initialOrders;
-    } catch {
-      return initialOrders;
-    }
-  });
-
-  // Messages state
-  const [messages, setMessages] = useState(() => {
-    try {
-      const stored = localStorage.getItem('lelequ_messages_v2');
-      return stored ? JSON.parse(stored) : initialMessages;
-    } catch {
-      return initialMessages;
-    }
-  });
-
-  // Settings state
+  // Settings state (persisted)
   const [settings, setSettings] = useState(() => {
     try {
       const stored = localStorage.getItem('lelequ_settings_v3');
@@ -101,22 +64,85 @@ export const AppProvider = ({ children }) => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderProduct, setOrderProduct] = useState(null);
 
-  // Sync to localStorage
+  // Fetch Products using Fetch API from /data/products.json
+  const fetchProducts = useCallback(async () => {
+    setLoadingProducts(true);
+    setErrorProducts(null);
+    try {
+      // First check local edits in localStorage if admin modified them
+      const storedEdits = localStorage.getItem('lelequ_products_v4');
+      if (storedEdits) {
+        setProducts(sanitizeLoadedProducts(JSON.parse(storedEdits)));
+        setLoadingProducts(false);
+        return;
+      }
+
+      // Fetch from public JSON data
+      const response = await fetch('/data/products.json');
+      if (!response.ok) {
+        throw new Error(`Gagal memuat data produk (HTTP ${response.status})`);
+      }
+      const data = await response.json();
+      const sanitized = sanitizeLoadedProducts(data);
+      setProducts(sanitized);
+      localStorage.setItem('lelequ_products_v4', JSON.stringify(sanitized));
+    } catch (err) {
+      console.warn('Fetch products failed, using fallback:', err.message);
+      setErrorProducts(err.message);
+      // Fallback to initial data if fetch error
+      const fallback = sanitizeLoadedProducts(initialProducts);
+      setProducts(fallback);
+    } finally {
+      setLoadingProducts(false);
+    }
+  }, []);
+
+  // Fetch Articles using Fetch API from /data/articles.json
+  const fetchArticles = useCallback(async () => {
+    setLoadingArticles(true);
+    setErrorArticles(null);
+    try {
+      const storedEdits = localStorage.getItem('lelequ_articles_v2');
+      if (storedEdits) {
+        setArticles(JSON.parse(storedEdits));
+        setLoadingArticles(false);
+        return;
+      }
+
+      const response = await fetch('/data/articles.json');
+      if (!response.ok) {
+        throw new Error(`Gagal memuat data artikel (HTTP ${response.status})`);
+      }
+      const data = await response.json();
+      setArticles(data);
+      localStorage.setItem('lelequ_articles_v2', JSON.stringify(data));
+    } catch (err) {
+      console.warn('Fetch articles failed, using fallback:', err.message);
+      setErrorArticles(err.message);
+      setArticles(initialArticles);
+    } finally {
+      setLoadingArticles(false);
+    }
+  }, []);
+
+  // Initial Data Fetch on Mount
   useEffect(() => {
-    localStorage.setItem('lelequ_products_v3', JSON.stringify(products));
+    fetchProducts();
+    fetchArticles();
+  }, [fetchProducts, fetchArticles]);
+
+  // Sync products and articles changes to localStorage for local CRUD persistence
+  useEffect(() => {
+    if (products.length > 0) {
+      localStorage.setItem('lelequ_products_v4', JSON.stringify(products));
+    }
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem('lelequ_articles_v2', JSON.stringify(articles));
+    if (articles.length > 0) {
+      localStorage.setItem('lelequ_articles_v2', JSON.stringify(articles));
+    }
   }, [articles]);
-
-  useEffect(() => {
-    localStorage.setItem('lelequ_orders_v2', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('lelequ_messages_v2', JSON.stringify(messages));
-  }, [messages]);
 
   useEffect(() => {
     localStorage.setItem('lelequ_settings_v3', JSON.stringify(settings));
@@ -143,7 +169,7 @@ export const AppProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Products CRUD
+  // Products CRUD (Admin only - Frontend simulation)
   const addProduct = (prodData) => {
     const newProduct = {
       ...prodData,
@@ -166,7 +192,7 @@ export const AppProvider = ({ children }) => {
     showToast('Produk telah dihapus dari katalog.', 'info');
   };
 
-  // Articles CRUD
+  // Articles CRUD (Admin only - Frontend simulation)
   const addArticle = (artData) => {
     const newArticle = {
       ...artData,
@@ -188,7 +214,7 @@ export const AppProvider = ({ children }) => {
     showToast('Artikel telah dihapus.', 'info');
   };
 
-  // Orders Management (Pickup Only)
+  // Public Order Form Simulation (Section H & F: No admin inbox/orders CRUD, simulation for frontend UTS)
   const addOrder = (orderData) => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `ORD-2024-${randomSuffix}`;
@@ -202,48 +228,8 @@ export const AppProvider = ({ children }) => {
         timeStyle: 'short',
       }),
     };
-    setOrders((prev) => [newOrder, ...prev]);
-    showToast(`Pesanan #${orderNumber} berhasil dibuat! (Pickup Only)`);
+    showToast(`Pesanan #${orderNumber} berhasil dibuat! Silakan konfirmasi via WhatsApp.`);
     return newOrder;
-  };
-
-  const updateOrderStatus = (id, status) => {
-    setOrders((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item))
-    );
-    showToast(`Status pesanan diubah menjadi: ${status}`);
-  };
-
-  const deleteOrder = (id) => {
-    setOrders((prev) => prev.filter((item) => item.id !== id));
-    showToast('Data pesanan telah dihapus.', 'info');
-  };
-
-  // Messages CRUD
-  const addMessage = (msgData) => {
-    const newMsg = {
-      ...msgData,
-      id: 'msg-' + Date.now(),
-      status: 'unread',
-      created_at: new Date().toLocaleString('id-ID', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }),
-    };
-    setMessages((prev) => [newMsg, ...prev]);
-    showToast('Pesan Anda berhasil dikirim ke pengelola LeleQu.');
-  };
-
-  const updateMessageStatus = (id, status) => {
-    setMessages((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item))
-    );
-    showToast(`Status pesan diubah menjadi: ${status}`);
-  };
-
-  const deleteMessage = (id) => {
-    setMessages((prev) => prev.filter((item) => item.id !== id));
-    showToast('Pesan telah dihapus.', 'info');
   };
 
   // Settings
@@ -253,13 +239,14 @@ export const AppProvider = ({ children }) => {
   };
 
   const resetAllData = () => {
-    setProducts(initialProducts);
-    setArticles(initialArticles);
-    setOrders(initialOrders);
-    setMessages(initialMessages);
+    localStorage.removeItem('lelequ_products_v4');
+    localStorage.removeItem('lelequ_products_v3');
+    localStorage.removeItem('lelequ_articles_v2');
+    localStorage.removeItem('lelequ_settings_v3');
+    fetchProducts();
+    fetchArticles();
     setSettings(initialSettings);
-    localStorage.clear();
-    showToast('Seluruh data berhasil di-reset ke pengaturan awal.', 'info');
+    showToast('Seluruh data berhasil di-reset ke data awal.', 'info');
   };
 
   // Auth Simulation
@@ -306,21 +293,20 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         products,
+        loadingProducts,
+        errorProducts,
+        fetchProducts,
         addProduct,
         updateProduct,
         deleteProduct,
         articles,
+        loadingArticles,
+        errorArticles,
+        fetchArticles,
         addArticle,
         updateArticle,
         deleteArticle,
-        orders,
         addOrder,
-        updateOrderStatus,
-        deleteOrder,
-        messages,
-        addMessage,
-        updateMessageStatus,
-        deleteMessage,
         settings,
         updateSettings,
         resetAllData,

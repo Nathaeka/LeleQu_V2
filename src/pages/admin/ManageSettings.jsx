@@ -238,7 +238,7 @@ export const ManageSettings = () => {
       <ConfirmationModal
         isOpen={resetModalOpen}
         title="Reset Semua Data ke Default?"
-        message="Tindakan ini akan mengembalikan seluruh produk, artikel, kemitraan, pesan, dan pengaturan ke data contoh awal. Lanjutkan?"
+        message="Tindakan ini akan mengembalikan data produk, artikel, dan pengaturan profil ke data awal. Lanjutkan?"
         confirmLabel="Reset Sekarang"
         onConfirm={() => {
           resetAllData();

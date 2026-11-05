@@ -1,29 +1,20 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { ArticleCard } from '../../components/articles/ArticleCard.jsx';
-import { Search, BookOpen, Clock, User, ArrowLeft, Share2, Check } from 'lucide-react';
+import {
+  Search,
+  BookOpen,
+  User,
+  AlertCircle,
+  RefreshCw,
+} from 'lucide-react';
 
 export const ArticlesPage = () => {
-  const { articles } = useApp();
-  const location = useLocation();
+  const { articles, loadingArticles, errorArticles, fetchArticles } = useApp();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeArticle, setActiveArticle] = useState(null);
-  const [copied, setCopied] = useState(false);
-
-  // Check URL query for slug
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const slug = params.get('slug');
-    if (slug) {
-      const found = articles.find((a) => a.slug === slug);
-      if (found) {
-        setActiveArticle(found);
-        window.scrollTo(0, 0);
-      }
-    }
-  }, [location.search, articles]);
 
   const categories = [
     { label: 'Semua Kategori', value: 'all' },
@@ -34,7 +25,7 @@ export const ArticlesPage = () => {
   ];
 
   const publishedArticles = useMemo(() => {
-    return articles.filter((a) => a.status === 'published');
+    return articles.filter((a) => a.status === 'published' || !a.status);
   }, [articles]);
 
   const filteredArticles = useMemo(() => {
@@ -42,7 +33,7 @@ export const ArticlesPage = () => {
       const matchSearch =
         art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         art.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        art.author.toLowerCase().includes(searchQuery.toLowerCase());
+        (art.author && art.author.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchCategory =
         selectedCategory === 'all' ||
@@ -54,118 +45,9 @@ export const ArticlesPage = () => {
 
   const featuredArticle = publishedArticles[0];
 
-  const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleSelectArticle = (art) => {
+    navigate(`/articles/${art.slug}`);
   };
-
-  // If viewing an active article
-  if (activeArticle) {
-    const related = publishedArticles
-      .filter((a) => a.id !== activeArticle.id)
-      .slice(0, 3);
-
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
-        <button
-          onClick={() => setActiveArticle(null)}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#1B6044] hover:text-[#123F2E] transition-colors p-1"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar Artikel</span>
-        </button>
-
-        {/* Article Header */}
-        <header className="space-y-4">
-          <div className="inline-block px-3 py-1 rounded-md bg-[#E8F3E9] text-xs font-bold text-[#123F2E]">
-            {activeArticle.category}
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-[#202923] leading-tight">
-            {activeArticle.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center justify-between gap-4 py-3 border-y border-neutral-200 text-xs text-[#6B786F]">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5 font-medium text-[#202923]">
-                <User className="w-4 h-4 text-[#1B6044]" />
-                {activeArticle.author}
-              </span>
-              <span>·</span>
-              <span>{activeArticle.published_at}</span>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {activeArticle.read_time}
-              </span>
-            </div>
-
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs font-medium text-neutral-700 transition-colors"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Tautan Disalin!' : 'Bagikan'}</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Featured Image */}
-        <div className="aspect-16/9 rounded-3xl overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm">
-          <img
-            src={activeArticle.thumbnail}
-            alt={activeArticle.title}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.src = '/public/assets/foto/kolam_lele_8e878a5c.jpeg';
-            }}
-          />
-        </div>
-
-        {/* Content Body */}
-        <div className="prose max-w-none text-[#202923] text-sm sm:text-base leading-relaxed space-y-6 whitespace-pre-line">
-          {activeArticle.content}
-        </div>
-
-        {/* Author Bio Box */}
-        <div className="p-6 rounded-2xl bg-[#F8FAF6] border border-neutral-200 flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#1B6044] text-white flex items-center justify-center font-bold text-lg shrink-0">
-            {activeArticle.author.charAt(0)}
-          </div>
-          <div className="space-y-1">
-            <h4 className="text-sm font-bold text-[#202923]">{activeArticle.author}</h4>
-            <p className="text-xs text-[#6B786F] leading-relaxed">
-              Praktisi & pemerhati budidaya perikanan air tawar di LeleQu. Berkomitmen
-              membagikan wawasan empiris berbasis sains untuk memajukan peternak lele nusantara.
-            </p>
-          </div>
-        </div>
-
-        {/* Related Articles */}
-        {related.length > 0 && (
-          <div className="space-y-6 pt-10 border-t border-neutral-200">
-            <h3 className="text-lg font-bold text-[#202923]">Artikel Terkait Lainnya</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {related.map((art) => (
-                <ArticleCard
-                  key={art.id}
-                  article={art}
-                  onSelect={(item) => {
-                    setActiveArticle(item);
-                    window.scrollTo(0, 0);
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-12 pb-20">
@@ -180,16 +62,55 @@ export const ArticlesPage = () => {
           </h1>
           <p className="text-sm sm:text-base text-neutral-200 max-w-2xl mx-auto leading-relaxed">
             Kumpulan artikel edukasi seputar pengelolaan kolam, kualitas air, nutrisi pakan, dan standar panen
-            yang disusun langsung oleh Tim LeleQu.
+            yang disusun langsung oleh Tim LeleQu untuk kemajuan perikanan air tawar.
           </p>
         </div>
       </section>
 
-      {/* 2. FEATURED SPOTLIGHT ARTICLE (IF NO SEARCH) */}
-      {!searchQuery && selectedCategory === 'all' && featuredArticle && (
+      {/* 2. LOADING STATE */}
+      {loadingArticles && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="p-12 text-center bg-white rounded-3xl border border-neutral-200 shadow-xs space-y-4">
+            <RefreshCw className="w-8 h-8 text-[#1B6044] animate-spin mx-auto" />
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-[#202923]">Memuat Artikel Edukasi...</h3>
+              <p className="text-xs text-[#6B786F]">
+                Mengambil data artikel budidaya ikan lele dari server data LeleQu.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 3. ERROR STATE */}
+      {!loadingArticles && errorArticles && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="p-8 sm:p-12 text-center bg-red-50/70 border border-red-200 rounded-3xl space-y-4 max-w-xl mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-red-900">Gagal Mengambil Data Artikel</h3>
+              <p className="text-xs text-red-700 leading-relaxed">
+                Kendala koneksi: {errorArticles}.
+              </p>
+            </div>
+            <button
+              onClick={fetchArticles}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1B6044] hover:bg-[#123F2E] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Muat Ulang Artikel</span>
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* 4. FEATURED SPOTLIGHT ARTICLE (IF NO SEARCH AND SUCCESS) */}
+      {!loadingArticles && !errorArticles && !searchQuery && selectedCategory === 'all' && featuredArticle && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            onClick={() => setActiveArticle(featuredArticle)}
+            onClick={() => handleSelectArticle(featuredArticle)}
             className="group cursor-pointer bg-white rounded-3xl border border-neutral-200 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 grid grid-cols-1 lg:grid-cols-12 gap-0"
           >
             <div className="lg:col-span-7 aspect-16/10 lg:aspect-auto relative bg-neutral-100 overflow-hidden">
@@ -198,6 +119,9 @@ export const ArticlesPage = () => {
                 alt={featuredArticle.title}
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  e.target.src = '/public/assets/foto/kolam_lele_8e878a5c.jpeg';
+                }}
               />
               <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-lg text-xs font-bold text-[#123F2E] shadow-xs">
                 Artikel Pilihan Redaksi
@@ -207,7 +131,7 @@ export const ArticlesPage = () => {
             <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs font-medium text-[#6B786F]">
-                  <span>{featuredArticle.category}</span>
+                  <span className="font-bold text-[#1B6044]">{featuredArticle.category}</span>
                   <span>·</span>
                   <span>{featuredArticle.published_at}</span>
                   <span>·</span>
@@ -237,77 +161,78 @@ export const ArticlesPage = () => {
         </section>
       )}
 
-      {/* 3. TOOLBAR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs space-y-6">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative w-full flex-1">
-              <Search className="w-5 h-5 text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Cari artikel, pengelolaan kolam, kualitas air, pakan..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F8FAF6] border border-neutral-200 text-sm text-[#202923] placeholder:text-[#6B786F] focus:outline-none focus:border-[#1B6044]"
-              />
-            </div>
+      {/* 5. TOOLBAR (SEARCH & FILTER) */}
+      {!loadingArticles && !errorArticles && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="relative w-full flex-1">
+                <Search className="w-5 h-5 text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Cari artikel, pengelolaan kolam, kualitas air, pakan..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F8FAF6] border border-neutral-200 text-sm text-[#202923] placeholder:text-[#6B786F] focus:outline-none focus:border-[#1B6044]"
+                />
+              </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-              <span className="text-xs font-bold text-[#6B786F] shrink-0 sm:hidden">Kategori:</span>
-              {categories.map((c) => (
-                <button
-                  key={c.value}
-                  onClick={() => setSelectedCategory(c.value)}
-                  className={`px-3.5 py-2 text-xs rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 ${
-                    selectedCategory === c.value
-                      ? 'bg-[#1B6044] text-white font-semibold'
-                      : 'bg-[#F8FAF6] text-[#6B786F] hover:bg-neutral-100 hover:text-[#202923] border border-neutral-200'
-                  }`}
-                >
-                  {c.label}
-                </button>
+              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+                <span className="text-xs font-bold text-[#6B786F] shrink-0 sm:hidden">Kategori:</span>
+                {categories.map((c) => (
+                  <button
+                    key={c.value}
+                    onClick={() => setSelectedCategory(c.value)}
+                    className={`px-3.5 py-2 text-xs rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 ${
+                      selectedCategory === c.value
+                        ? 'bg-[#1B6044] text-white font-semibold shadow-xs'
+                        : 'bg-[#F8FAF6] text-[#6B786F] hover:bg-neutral-100 hover:text-[#202923] border border-neutral-200'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 6. ARTICLES GRID / EMPTY STATE */}
+      {!loadingArticles && !errorArticles && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {filteredArticles.length === 0 ? (
+            <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 space-y-4 max-w-md mx-auto">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center mx-auto">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-[#202923]">Belum Ada Artikel yang Sesuai</h3>
+              <p className="text-xs text-[#6B786F]">
+                Tidak ditemukan artikel dengan kata kunci "{searchQuery}" pada kategori yang dipilih.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                }}
+                className="px-4 py-2 text-xs font-semibold bg-[#1B6044] text-white rounded-xl hover:bg-[#123F2E] transition-colors"
+              >
+                Reset Filter Pencarian
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredArticles.map((art) => (
+                <ArticleCard
+                  key={art.id}
+                  article={art}
+                  onSelect={handleSelectArticle}
+                />
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. ARTICLES GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {filteredArticles.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 space-y-4 max-w-md mx-auto">
-            <div className="w-12 h-12 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center mx-auto">
-              <BookOpen className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-[#202923]">Belum Ada Artikel</h3>
-            <p className="text-xs text-[#6B786F]">
-              Tidak ditemukan artikel yang sesuai dengan kriteria filter Anda.
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-              }}
-              className="px-4 py-2 text-xs font-semibold bg-[#1B6044] text-white rounded-xl"
-            >
-              Reset Filter
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map((art) => (
-              <ArticleCard
-                key={art.id}
-                article={art}
-                onSelect={(item) => {
-                  setActiveArticle(item);
-                  window.scrollTo(0, 0);
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      )}
     </div>
   );
 };

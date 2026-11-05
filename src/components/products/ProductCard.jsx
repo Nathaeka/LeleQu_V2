@@ -34,14 +34,7 @@ export const ProductCard = ({ product }) => {
             e.target.src = '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg';
           }}
         />
-
-        {/* Availability badge */}
-        <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold text-[#123F2E] shadow-xs">
-          {product.is_available ? 'Stok Tersedia' : 'Pemesanan PO'}
-        </div>
       </div>
-
-      {/* Content */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-1.5">
           {product.min_order && (

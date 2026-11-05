@@ -1,11 +1,21 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, User } from 'lucide-react';
 
 export const ArticleCard = ({ article, onSelect }) => {
+  const handleClick = (e) => {
+    if (onSelect) {
+      e.preventDefault();
+      onSelect(article);
+    }
+  };
+
   return (
-    <article
-      onClick={() => onSelect(article)}
-      className="group bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs hover:shadow-md hover:border-[#78B98B]/60 transition-all duration-200 flex flex-col cursor-pointer"
+    <Link
+      to={`/articles/${article.slug}`}
+      onClick={handleClick}
+      className="group bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs hover:shadow-md hover:border-[#78B98B]/60 transition-all duration-200 flex flex-col focus:outline-none focus:ring-2 focus:ring-[#1B6044]"
+      aria-label={`Baca artikel: ${article.title}`}
     >
       <div className="relative aspect-16/10 overflow-hidden bg-neutral-100">
         <img
@@ -24,7 +34,6 @@ export const ArticleCard = ({ article, onSelect }) => {
 
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2.5">
-          {/* Zero-pill metadata with separators */}
           <div className="flex items-center gap-2 text-xs text-[#6B786F]">
             <span>{article.published_at}</span>
             <span aria-hidden="true">·</span>
@@ -52,6 +61,6 @@ export const ArticleCard = ({ article, onSelect }) => {
           </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 };

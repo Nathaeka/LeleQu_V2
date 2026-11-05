@@ -25,7 +25,7 @@ export const HomePage = () => {
   const latestArticles = articles.filter((a) => a.status === 'published').slice(0, 3);
 
   const handleSelectArticle = (art) => {
-    navigate(`/articles?slug=${art.slug}`);
+    navigate(`/articles/${art.slug}`);
   };
 
   return (

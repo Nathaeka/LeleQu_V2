@@ -172,7 +172,6 @@ export const ManageProducts = () => {
           >
             <option value="all">Semua Ukuran</option>
             <option value="Konsumsi">Lele Konsumsi</option>
-            <option value="Pecel Lele">Lele Pecel Lele</option>
             <option value="Super">Lele Super / Jumbo</option>
             <option value="Frozen">Frozen / Olahan</option>
           </select>
@@ -189,14 +188,13 @@ export const ManageProducts = () => {
                 <th className="py-3 px-4">Ukuran / Kategori</th>
                 <th className="py-3 px-4">Harga / kg</th>
                 <th className="py-3 px-4">Min. Order</th>
-                <th className="py-3 px-4">Status Stok</th>
                 <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-neutral-400">
+                  <td colSpan={5} className="py-8 text-center text-neutral-400">
                     Tidak ada produk yang ditemukan.
                   </td>
                 </tr>
@@ -221,19 +219,6 @@ export const ManageProducts = () => {
                       {formatRupiah(p.price_per_kg)}
                     </td>
                     <td className="py-3 px-4 text-[#6B786F] font-mono">{p.min_order || '-'}</td>
-                    <td className="py-3 px-4">
-                      <button
-                        onClick={() => updateProduct(p.id, { is_available: !p.is_available })}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${
-                          p.is_available
-                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                            : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                        }`}
-                        title="Klik untuk ubah status ketersediaan"
-                      >
-                        {p.is_available ? 'Siap Panen' : 'Pre-Order'}
-                      </button>
-                    </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
@@ -306,7 +291,7 @@ export const ManageProducts = () => {
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: Konsumsi (8–10 ekor/kg) atau Pecel Lele (10–12 ekor/kg)"
+                    placeholder="Contoh: Konsumsi (8–10 ekor/kg) atau Super Jumbo (6–8 ekor/kg)"
                     value={formData.grade}
                     onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none"
@@ -330,31 +315,17 @@ export const ManageProducts = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-[#6B786F] mb-1">
-                    Minimal Pemesanan
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: 5 kg atau 1.000 ekor"
-                    value={formData.min_order}
-                    onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pt-6">
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#202923] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_available}
-                      onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
-                      className="rounded text-[#1B6044]"
-                    />
-                    <span>Stok Tersedia (Siap Panen)</span>
-                  </label>
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-[#6B786F] mb-1">
+                  Minimal Pemesanan
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: 3 kg atau 5 pack"
+                  value={formData.min_order}
+                  onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-xs text-[#202923] focus:border-[#1B6044] focus:outline-none"
+                />
               </div>
 
               {/* Image Selection */}
