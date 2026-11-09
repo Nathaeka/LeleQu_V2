@@ -25,6 +25,13 @@ const sanitizeLoadedProducts = (items) => {
   });
 };
 
+const sanitizeLoadedArticles = (items) => {
+  return items.map((a) => ({
+    ...a,
+    thumbnail: (a.thumbnail || '').replace(/^\/public\//, '/'),
+  }));
+};
+
 export const AppProvider = ({ children }) => {
   // Products state
   const [products, setProducts] = useState([]);
