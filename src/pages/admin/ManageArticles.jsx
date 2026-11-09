@@ -34,12 +34,12 @@ export const ManageArticles = () => {
   });
 
   const availableImagePresets = [
-    { label: 'Infografis Pakan Lele', url: '/public/assets/foto/image_60f36d86.png' },
-    { label: 'Kolam LeleQu Terpal', url: '/public/assets/foto/kolam_lele_8e878a5c.jpeg' },
-    { label: 'Kolam Bundar Air', url: '/public/assets/foto/kolam_lele_tok_18245844.jpeg' },
-    { label: 'Ikan Lele Segar', url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg' },
-    { label: 'Lele Frozen Bersih', url: '/public/assets/foto/lele_frozen_577f6962.jpg' },
-  ];
+  { label: 'Infografis Pakan Lele', url: '/assets/foto/image_60f36d86.png' },
+  { label: 'Kolam LeleQu Terpal', url: '/assets/foto/kolam_lele_8e878a5c.jpeg' },
+  { label: 'Kolam Bundar Air', url: '/assets/foto/kolam_lele_tok_18245844.jpeg' },
+  { label: 'Ikan Lele Segar', url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg' },
+  { label: 'Lele Frozen Bersih', url: '/assets/foto/lele_frozen_577f6962.jpg' },
+];
 
   const filteredArticles = useMemo(() => {
     return articles.filter((a) => {
@@ -198,6 +198,11 @@ export const ManageArticles = () => {
                         src={art.thumbnail}
                         alt={art.title}
                         className="w-12 h-9 rounded-lg object-cover bg-neutral-100 shrink-0"
+                         onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 
+                        '/assets/foto/kolam_lele_8e878a5c.jpeg';
+                  }}
                       />
                       <div className="max-w-sm">
                         <span className="block truncate">{art.title}</span>
