@@ -6,7 +6,6 @@ import {
   FileText,
   Plus,
   ArrowRight,
-  Smartphone,
   ExternalLink,
   CheckCircle2,
   Package,
@@ -68,42 +67,6 @@ export const DashboardOverview = () => {
             <span>Lihat Website</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
-        </div>
-      </div>
-
-      {/* Integration Notice Card (Website vs Mobile App) */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-[#E8F3E9] to-[#F8FAF6] border border-[#78B98B]/40 space-y-4">
-        <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#1B6044] text-white flex items-center justify-center shrink-0 shadow-xs">
-            <Smartphone className="w-5 h-5" />
-          </div>
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1B6044] bg-white px-2 py-0.5 rounded shadow-2xs">
-              Sistem Terintegrasi Backend & Database
-            </span>
-            <h3 className="text-base font-bold text-[#123F2E]">
-              Pemisahan Tugas: Website Profile & Aplikasi Mobile Operasional
-            </h3>
-            <p className="text-xs text-neutral-700 leading-relaxed max-w-4xl">
-              Website ini berfungsi sebagai media company profile, katalog produk ikan lele, dan pintu masuk pemesanan.
-              Seluruh pesanan yang masuk dikirim ke database bersama dan <strong>dikelola secara terpusat melalui Aplikasi Mobile LeleQu</strong> (manajemen stok kolam, konfirmasi timbangan, dan operasional panen).
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
-          <div className="p-3 bg-white rounded-xl border border-[#78B98B]/20 flex items-center gap-2 text-[#123F2E]">
-            <CheckCircle2 className="w-4 h-4 text-[#1B6044] shrink-0" />
-            <span>Website: CRUD Katalog Produk & Profil</span>
-          </div>
-          <div className="p-3 bg-white rounded-xl border border-[#78B98B]/20 flex items-center gap-2 text-[#123F2E]">
-            <CheckCircle2 className="w-4 h-4 text-[#1B6044] shrink-0" />
-            <span>Formulir: Pintu Masuk Pemesanan Pelanggan</span>
-          </div>
-          <div className="p-3 bg-white rounded-xl border border-[#78B98B]/20 flex items-center gap-2 text-[#123F2E]">
-            <CheckCircle2 className="w-4 h-4 text-[#1B6044]" />
-            <span>Aplikasi Mobile: Manajemen Pesanan & Kolam</span>
-          </div>
         </div>
       </div>
 
