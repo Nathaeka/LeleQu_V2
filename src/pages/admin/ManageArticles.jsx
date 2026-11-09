@@ -179,7 +179,7 @@ export const ManageArticles = () => {
                 <th className="py-3 px-4">Kategori</th>
                 <th className="py-3 px-4">Penulis</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Tanggal Rilis</th>
+                <th className="py-3 px-4">Tanggal Publikasi</th>
                 <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
