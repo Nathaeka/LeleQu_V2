@@ -66,7 +66,9 @@ export const OrderModal = () => {
   if (!isOrderModalOpen) return null;
 
   const currentProduct =
-    products.find((p) => p.id === selectedProductId) || orderProduct || products[0];
+    products.find((p) => String(p.id) === String(selectedProductId)) ||
+    orderProduct ||
+    products[0];
 
   const pricePerKg = currentProduct ? currentProduct.price_per_kg : 25000;
   const subtotal = (Number(quantityKg) || 0) * pricePerKg;
@@ -596,7 +598,7 @@ export const OrderModal = () => {
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg';
+                        e.target.src = '/assets/foto/Ikan_lele_segar_5b6a360e.jpg';
                       }}
                     />
                   </div>

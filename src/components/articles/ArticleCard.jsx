@@ -24,7 +24,7 @@ export const ArticleCard = ({ article, onSelect }) => {
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
-            e.target.src = '/public/assets/foto/kolam_lele_8e878a5c.jpeg';
+            e.target.src = '/assets/foto/kolam_lele_8e878a5c.jpeg';
           }}
         />
         <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-md text-xs font-semibold text-[#123F2E] shadow-xs">

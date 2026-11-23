@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { initialProducts, initialArticles, initialSettings } from '../data/initialData.js';
+import { initialArticles, initialSettings } from '../data/initialData.js';
+import { productApi } from '../services/productApi.js';
+import { API_BASE_URL } from '../config/api.js';
 
 const AppContext = createContext(undefined);
 
@@ -17,6 +19,7 @@ const sanitizeLoadedProducts = (items) => {
     return {
       ...p,
       name: cleanName,
+      image_url: (p.image_url || '').replace(/^\/public\//, '/'),
       grade: (p.grade || '').replace(/Grade\s*/gi, '').trim(),
       description: (p.description || '')
         .replace(/Sangkuriang/gi, 'pilihan')
@@ -70,34 +73,19 @@ export const AppProvider = ({ children }) => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderProduct, setOrderProduct] = useState(null);
 
-  // Fetch Products using Fetch API from /data/products.json
+  // Fetch Products from NestJS Backend API (GET /products)
   const fetchProducts = useCallback(async () => {
     setLoadingProducts(true);
     setErrorProducts(null);
     try {
-      // First check local edits in localStorage if admin modified them
-      const storedEdits = localStorage.getItem('lelequ_products_v4');
-      if (storedEdits) {
-        setProducts(sanitizeLoadedProducts(JSON.parse(storedEdits)));
-        setLoadingProducts(false);
-        return;
-      }
-
-      // Fetch from public JSON data
-      const response = await fetch('/data/products.json');
-      if (!response.ok) {
-        throw new Error(`Gagal memuat data produk (HTTP ${response.status})`);
-      }
-      const data = await response.json();
-      const sanitized = sanitizeLoadedProducts(data);
-      setProducts(sanitized);
-      localStorage.setItem('lelequ_products_v4', JSON.stringify(sanitized));
+      const data = await productApi.getAll();
+      setProducts(data);
     } catch (err) {
-      console.warn('Fetch products failed, using fallback:', err.message);
-      setErrorProducts(err.message);
-      // Fallback to initial data if fetch error
-      const fallback = sanitizeLoadedProducts(initialProducts);
-      setProducts(fallback);
+      console.warn('Fetch products from NestJS API failed:', err.message);
+      setErrorProducts(
+        `Tidak dapat terhubung ke server backend NestJS (${API_BASE_URL}). ${err.message}`
+      );
+      setProducts([]);
     } finally {
       setLoadingProducts(false);
     }
@@ -110,7 +98,7 @@ export const AppProvider = ({ children }) => {
     try {
       const storedEdits = localStorage.getItem('lelequ_articles_v2');
       if (storedEdits) {
-        setArticles(JSON.parse(storedEdits));
+        setArticles(sanitizeLoadedArticles(JSON.parse(storedEdits)));
         setLoadingArticles(false);
         return;
       }
@@ -120,12 +108,13 @@ export const AppProvider = ({ children }) => {
         throw new Error(`Gagal memuat data artikel (HTTP ${response.status})`);
       }
       const data = await response.json();
-      setArticles(data);
-      localStorage.setItem('lelequ_articles_v2', JSON.stringify(data));
+      const sanitized = sanitizeLoadedArticles(data);
+      setArticles(sanitized);
+      localStorage.setItem('lelequ_articles_v2', JSON.stringify(sanitized));
     } catch (err) {
       console.warn('Fetch articles failed, using fallback:', err.message);
       setErrorArticles(err.message);
-      setArticles(initialArticles);
+      setArticles(sanitizeLoadedArticles(initialArticles));
     } finally {
       setLoadingArticles(false);
     }
@@ -137,12 +126,7 @@ export const AppProvider = ({ children }) => {
     fetchArticles();
   }, [fetchProducts, fetchArticles]);
 
-  // Sync products and articles changes to localStorage for local CRUD persistence
-  useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem('lelequ_products_v4', JSON.stringify(products));
-    }
-  }, [products]);
+  // Sync articles changes to localStorage for local CRUD persistence
 
   useEffect(() => {
     if (articles.length > 0) {
@@ -175,27 +159,47 @@ export const AppProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Products CRUD (Admin only - Frontend simulation)
-  const addProduct = (prodData) => {
-    const newProduct = {
-      ...prodData,
-      id: 'prod-' + Date.now(),
-      created_at: new Date().toISOString(),
-    };
-    setProducts((prev) => [newProduct, ...prev]);
-    showToast('Produk lele berhasil ditambahkan.');
+  // Products CRUD (Terhubung ke NestJS Backend API)
+  const addProduct = async (prodData) => {
+    try {
+      const created = await productApi.create(prodData);
+      setProducts((prev) => [created, ...prev]);
+      showToast('Produk lele berhasil ditambahkan ke backend.');
+      return { success: true, data: created };
+    } catch (err) {
+      showToast(err.message || 'Gagal menambahkan produk ke server.', 'error');
+      return { success: false, error: err.message };
+    }
   };
 
-  const updateProduct = (id, updated) => {
-    setProducts((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updated } : item))
-    );
-    showToast('Data produk berhasil diperbarui.');
+  const updateProduct = async (id, updated) => {
+    try {
+      const updatedProduct = await productApi.update(id, updated);
+      setProducts((prev) =>
+        prev.map((item) =>
+          String(item.id) === String(id) ? updatedProduct : item
+        )
+      );
+      showToast('Data produk berhasil diperbarui di backend.');
+      return { success: true, data: updatedProduct };
+    } catch (err) {
+      showToast(err.message || 'Gagal memperbarui produk di server.', 'error');
+      return { success: false, error: err.message };
+    }
   };
 
-  const deleteProduct = (id) => {
-    setProducts((prev) => prev.filter((item) => item.id !== id));
-    showToast('Produk telah dihapus dari katalog.', 'info');
+  const deleteProduct = async (id) => {
+    try {
+      await productApi.remove(id);
+      setProducts((prev) =>
+        prev.filter((item) => String(item.id) !== String(id))
+      );
+      showToast('Produk telah dihapus dari katalog backend.', 'info');
+      return { success: true };
+    } catch (err) {
+      showToast(err.message || 'Gagal menghapus produk dari server.', 'error');
+      return { success: false, error: err.message };
+    }
   };
 
   // Articles CRUD (Admin only - Frontend simulation)
@@ -245,8 +249,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const resetAllData = () => {
-    localStorage.removeItem('lelequ_products_v4');
-    localStorage.removeItem('lelequ_products_v3');
     localStorage.removeItem('lelequ_articles_v2');
     localStorage.removeItem('lelequ_settings_v3');
     fetchProducts();

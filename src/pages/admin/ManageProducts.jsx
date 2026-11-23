@@ -9,10 +9,21 @@ import {
   Eye,
   X,
   Filter,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 
 export const ManageProducts = () => {
-  const { products, addProduct, updateProduct, deleteProduct, setSelectedProduct } = useApp();
+  const {
+    products,
+    loadingProducts,
+    errorProducts,
+    fetchProducts,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    setSelectedProduct,
+  } = useApp();
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('all');
 
@@ -20,6 +31,7 @@ export const ManageProducts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form fields
   const [formData, setFormData] = useState({
@@ -28,18 +40,18 @@ export const ManageProducts = () => {
     description: '',
     grade: 'Konsumsi (8–10 ekor/kg)',
     price_per_kg: 25000,
-    image_url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
+    image_url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
     is_available: true,
     min_order: '3 kg',
     characteristics: 'Ukuran seragam, Daging padat & kenyal, Bebas bau lumpur',
   });
 
   const availableImagePresets = [
-    { label: 'Lele Segar Baskom', url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg' },
-    { label: 'Lele Frozen Vacuum', url: '/public/assets/foto/lele_frozen_577f6962.jpg' },
-    { label: 'Fillet Lele Boneless', url: '/public/assets/foto/lele_fillet_ab2007db.jpg' },
-    { label: 'Rolade Lele Siap Masak', url: '/public/assets/foto/Rolade_lele_1c433422.jpg' },
-    { label: 'Kolam LeleQu Bobotsari', url: '/public/assets/foto/kolam_lele_tok_18245844.jpeg' },
+    { label: 'Lele Segar Baskom', url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg' },
+    { label: 'Lele Frozen Vacuum', url: '/assets/foto/lele_frozen_577f6962.jpg' },
+    { label: 'Fillet Lele Boneless', url: '/assets/foto/lele_fillet_ab2007db.jpg' },
+    { label: 'Rolade Lele Siap Masak', url: '/assets/foto/Rolade_lele_1c433422.jpg' },
+    { label: 'Kolam LeleQu Bobotsari', url: '/assets/foto/kolam_lele_tok_18245844.jpeg' },
   ];
 
   const filteredProducts = useMemo(() => {
@@ -61,7 +73,7 @@ export const ManageProducts = () => {
       description: '',
       grade: 'Konsumsi (8–10 ekor/kg)',
       price_per_kg: 25000,
-      image_url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
+      image_url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
       is_available: true,
       min_order: '3 kg',
       characteristics: 'Ukuran seragam, Daging padat & kenyal, Bebas bau lumpur',
@@ -85,8 +97,9 @@ export const ManageProducts = () => {
     setIsFormOpen(true);
   };
 
-  const handleSubmitForm = (e) => {
+  const handleSubmitForm = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const chars = formData.characteristics
       .split(',')
       .map((s) => s.trim())
@@ -94,33 +107,26 @@ export const ManageProducts = () => {
 
     const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-');
 
-    if (editingProduct) {
-      updateProduct(editingProduct.id, {
-        name: formData.name,
-        slug,
-        description: formData.description,
-        grade: formData.grade,
-        price_per_kg: Number(formData.price_per_kg),
-        image_url: formData.image_url,
-        is_available: formData.is_available,
-        min_order: formData.min_order,
-        characteristics: chars,
-      });
-    } else {
-      addProduct({
-        name: formData.name,
-        slug,
-        description: formData.description,
-        grade: formData.grade,
-        price_per_kg: Number(formData.price_per_kg),
-        image_url: formData.image_url,
-        is_available: formData.is_available,
-        min_order: formData.min_order,
-        characteristics: chars,
-      });
-    }
+    const payload = {
+      name: formData.name,
+      slug,
+      description: formData.description,
+      grade: formData.grade,
+      price_per_kg: Number(formData.price_per_kg),
+      image_url: formData.image_url,
+      is_available: formData.is_available,
+      min_order: formData.min_order,
+      characteristics: chars,
+    };
 
-    setIsFormOpen(false);
+    const result = editingProduct
+      ? await updateProduct(editingProduct.id, payload)
+      : await addProduct(payload);
+
+    setIsSubmitting(false);
+    if (result?.success) {
+      setIsFormOpen(false);
+    }
   };
 
   const formatRupiah = (val) => {
@@ -178,6 +184,31 @@ export const ManageProducts = () => {
         </div>
       </div>
 
+      {/* Info penyimpanan in-memory backend & Error state */}
+      {errorProducts ? (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5 text-xs text-red-800">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold block">Koneksi ke Backend NestJS Bermasalah</span>
+              <span>{errorProducts}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={fetchProducts}
+            className="px-3.5 py-2 bg-[#1B6044] hover:bg-[#123F2E] text-white text-xs font-bold rounded-xl inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Muat Ulang</span>
+          </button>
+        </div>
+      ) : (
+        <div className="bg-[#E8F3E9]/70 border border-[#78B98B]/40 rounded-2xl px-4 py-3 text-xs text-[#123F2E]">
+          Data produk dikelola melalui API NestJS (penyimpanan array di memori). Perubahan akan kembali ke data awal apabila server backend direstart.
+        </div>
+      )}
+
       {/* Products Table */}
       <div className="bg-white rounded-3xl border border-neutral-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
@@ -192,7 +223,13 @@ export const ManageProducts = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {filteredProducts.length === 0 ? (
+              {loadingProducts ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-[#6B786F]">
+                    Memuat data produk dari backend NestJS...
+                  </td>
+                </tr>
+              ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-neutral-400">
                     Tidak ada produk yang ditemukan.
@@ -396,9 +433,14 @@ export const ManageProducts = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#1B6044] hover:bg-[#123F2E] text-white text-xs font-bold"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-[#1B6044] hover:bg-[#123F2E] disabled:opacity-60 text-white text-xs font-bold"
                 >
-                  {editingProduct ? 'Simpan Perubahan' : 'Tambahkan Produk'}
+                  {isSubmitting
+                    ? 'Menyimpan...'
+                    : editingProduct
+                      ? 'Simpan Perubahan'
+                      : 'Tambahkan Produk'}
                 </button>
               </div>
             </form>
@@ -412,9 +454,9 @@ export const ManageProducts = () => {
         title="Hapus Produk?"
         message={`Apakah Anda yakin ingin menghapus produk "${deleteTarget?.name}"? Produk ini tidak akan lagi tampil di katalog publik.`}
         confirmLabel="Hapus Produk"
-        onConfirm={() => {
+        onConfirm={async () => {
           if (deleteTarget) {
-            deleteProduct(deleteTarget.id);
+            await deleteProduct(deleteTarget.id);
             setDeleteTarget(null);
           }
         }}

@@ -30,7 +30,7 @@ export const Navbar = () => {
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-10 h-10 rounded-xl bg-[#123F2E] flex items-center justify-center p-1.5 shadow-sm group-hover:bg-[#1B6044] transition-colors overflow-hidden">
               <img
-                src="/public/assets/foto/logo_lele2_58eae7d6.png"
+                src="/assets/foto/logo_lele2_58eae7d6.png"
                 alt="Logo LeleQu"
                 className="w-7 h-7 object-contain brightness-0 invert"
               />

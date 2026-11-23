@@ -6,7 +6,7 @@ export const initialProducts = [
     description: 'Ikan lele segar pilihan dengan rasio 8–10 ekor per kilogram. Dipanen langsung dari kolam pengelolaan bersih dan sehat. Daging tebal, gurih, padat, dan bebas bau lumpur karena telah melalui proses pembersihan dan karantina air mengalir sebelum ditimbang.',
     grade: 'Konsumsi (8–10 ekor/kg)',
     price_per_kg: 25000,
-    image_url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
+    image_url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
     is_available: true,
     min_order: '3 kg',
     characteristics: ['Ukuran seragam 8-10 ekor/kg', 'Daging padat & kenyal', 'Bebas bau lumpur', 'Dipanen langsung saat order'],
@@ -19,7 +19,7 @@ export const initialProducts = [
     description: 'Ikan lele ukuran jumbo dengan bobot 6–8 ekor per kilogram. Rendemen daging sangat tebal, cocok untuk olahan lele bakar madu, lele asap, mangut lele, atau di-fillet tanpa duri untuk masakan keluarga.',
     grade: 'Super / Besar (6–8 ekor/kg)',
     price_per_kg: 24000,
-    image_url: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
+    image_url: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
     is_available: true,
     min_order: '3 kg',
     characteristics: ['Ukuran jumbo 6-8 ekor/kg', 'Daging tebal memuaskan', 'Kadar lemak seimbang', 'Kondisi ikan bugar & sehat'],
@@ -32,7 +32,7 @@ export const initialProducts = [
     description: 'Ikan lele segar yang telah disiangi bersih (dibuang isi perut dan insang), dicuci higienis, lalu dibekukan cepat (air blast frozen) dan dikemas rapat kedap udara (vacuum pack). Siap langsung dibumbui atau digoreng kapan saja tanpa repot membersihkan ikan.',
     grade: 'Frozen Siap Masak (Pack 1 kg)',
     price_per_kg: 28000,
-    image_url: '/public/assets/foto/lele_frozen_577f6962.jpg',
+    image_url: '/assets/foto/lele_frozen_577f6962.jpg',
     is_available: true,
     min_order: '2 kg (2 pack)',
     characteristics: ['Sudah disiangi & bersih', 'Kemasan vacuum pack higienis', 'Tahan lama dalam freezer', 'Praktis tanpa repot'],
@@ -45,7 +45,7 @@ export const initialProducts = [
     description: 'Potongan daging murni ikan lele tanpa tulang/duri dan kulit. Diproses dari lele ukuran super segar berbobot tinggi. Sangat higienis, bergizi tinggi untuk anak-anak, nugget ikan, fish & chips, atau masakan diet sehat.',
     grade: 'Fillet Daging Murni (Pack 500 gr)',
     price_per_kg: 45000,
-    image_url: '/public/assets/foto/lele_fillet_ab2007db.jpg',
+    image_url: '/assets/foto/lele_fillet_ab2007db.jpg',
     is_available: true,
     min_order: '1 kg',
     characteristics: ['100% daging murni tanpa duri', 'Bebas pengawet kimiawi', 'Kemasan food grade vacuum', 'Tinggi protein berkualitas'],
@@ -58,7 +58,7 @@ export const initialProducts = [
     description: 'Produk olahan ikan lele pilihan yang dicincang lembut bersama bumbu rempah alami lalu digulung dengan lapisan telur dadar lezat. Gurih, bergizi, cocok untuk lauk harian keluarga, bekal anak, dan katering.',
     grade: 'Olahan Lele (Roll)',
     price_per_kg: 35000,
-    image_url: '/public/assets/foto/Rolade_lele_1c433422.jpg',
+    image_url: '/assets/foto/Rolade_lele_1c433422.jpg',
     is_available: true,
     min_order: '2 roll',
     characteristics: ['Olahan daging lele asli', 'Kaya rempah nusantara', 'Tinggal iris & goreng/kukus', 'Disukai anak & dewasa'],
@@ -72,7 +72,7 @@ export const initialArticles = [
     title: 'Teknik Budidaya Ikan Lele Kolam Terencana: Menjaga Pertumbuhan & Daya Tahan Ikan',
     slug: 'teknik-budidaya-ikan-lele-kolam-terencana',
     category: 'Teknik Budidaya',
-    thumbnail: '/public/assets/foto/kolam_lele_8e878a5c.jpeg',
+    thumbnail: '/assets/foto/kolam_lele_8e878a5c.jpeg',
     read_time: '5 menit baca',
     content: `Budidaya ikan lele memerlukan perencanaan kolam dan manajemen harian yang disiplin. Dengan pengelolaan sirkulasi air yang teratur dan pengaturan kepadatan tebar yang proporsional, ikan dapat tumbuh secara seragam tanpa stres.
 
@@ -91,7 +91,7 @@ Dengan perawatan kolam yang higienis, tingkat kelangsungan hidup (survival rate)
     title: 'Manajemen Kualitas Air Kolam: Menjaga Suhu dan Derajat Keasaman (pH) Stabil',
     slug: 'manajemen-kualitas-air-kolam',
     category: 'Kualitas Air',
-    thumbnail: '/public/assets/foto/kolam_lele_tok_18245844.jpeg',
+    thumbnail: '/assets/foto/kolam_lele_tok_18245844.jpeg',
     read_time: '4 menit baca',
     content: `Kondisi air adalah habitat utama yang menentukan kesehatan ikan lele. Perubahan cuaca ekstrem seperti hujan lebat atau panas terik dapat memicu perubahan mendadak pada suhu dan pH air.
 
@@ -110,7 +110,7 @@ Pemantauan harian membuat kondisi fisik lele tetap segar, bugar, dan terbebas da
     title: 'Pemberian Pakan Terjadwal: Strategi Nutrisi Tinggi untuk Pertumbuhan Cepat',
     slug: 'pemberian-pakan-terjadwal-ikan-lele',
     category: 'Pakan & Nutrisi',
-    thumbnail: '/public/assets/foto/image_60f36d86.png',
+    thumbnail: '/assets/foto/image_60f36d86.png',
     read_time: '6 menit baca',
     content: `Pakan merupakan komponen penting dalam budidaya lele. Memahami jenis pakan dan jadwal pemberian yang tepat sangat menentukan kecepatan pertumbuhan dan bobot panen ikan.
 
@@ -130,7 +130,7 @@ Berikan pakan pada jam-jam tetap setiap hari, biasanya pada pagi hari setelah su
     title: 'SOP Panen dan Pemberokan Ikan Lele: Menghasilkan Daging Bersih Bebas Bau Lumpur',
     slug: 'sop-panen-pemberokan-lele-bebas-bau',
     category: 'Panen & Distribusi',
-    thumbnail: '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
+    thumbnail: '/assets/foto/Ikan_lele_segar_5b6a360e.jpg',
     read_time: '5 menit baca',
     content: `Kualitas daging lele sangat ditentukan oleh penanganan pasca-panen. Di LeleQu, setiap ikan yang selesai dipanen menjalani tahap pemberokan terlebih dahulu.
 

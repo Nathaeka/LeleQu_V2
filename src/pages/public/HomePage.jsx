@@ -35,7 +35,7 @@ export const HomePage = () => {
         {/* Background Image with Scrim */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/public/assets/foto/kolam_lele_8e878a5c.jpeg"
+            src="/assets/foto/kolam_lele_8e878a5c.jpeg"
             alt="Kolam Budidaya LeleQu"
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center scale-105 opacity-35"
@@ -219,7 +219,7 @@ export const HomePage = () => {
           <div className="lg:col-span-5 relative">
             <div className="aspect-4/3 rounded-3xl overflow-hidden shadow-lg border border-neutral-200">
               <img
-                src="/public/assets/foto/kolam_lele_tok_18245844.jpeg"
+                src="/assets/foto/kolam_lele_tok_18245844.jpeg"
                 alt="Fasilitas Kolam LeleQu"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"

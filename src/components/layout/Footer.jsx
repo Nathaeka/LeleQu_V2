@@ -15,7 +15,7 @@ export const Footer = () => {
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-[#1B6044] flex items-center justify-center p-1.5 shadow-xs overflow-hidden">
                 <img
-                  src="/public/assets/foto/logo_lele2_58eae7d6.png"
+                  src="/assets/foto/logo_lele2_58eae7d6.png"
                   alt="Logo LeleQu"
                   className="w-7 h-7 object-contain brightness-0 invert"
                 />

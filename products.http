@@ -1,0 +1,78 @@
+@baseUrl = http://localhost:3001
+@contentType = application/json
+
+### 1. GET seluruh produk
+GET {{baseUrl}}/products
+Accept: application/json
+
+### 2. GET produk berdasarkan ID (ID valid = 1)
+GET {{baseUrl}}/products/1
+Accept: application/json
+
+### 3. POST produk baru (data valid)
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+  "name": "Ikan Lele Asap Khas Purbalingga",
+  "description": "Ikan lele pilihan diasap dengan kayu keras alami sehingga menghasilkan aroma khas dan tekstur daging kenyal gurih.",
+  "category": "Olahan Lele (Pack 500 gr)",
+  "price": 38000,
+  "image": "/assets/foto/Rolade_lele_1c433422.jpg",
+  "minOrder": "2 pack",
+  "characteristics": [
+    "Diasap alami tanpa pengawet",
+    "Daging empuk dan harum",
+    "Siap olah mangut atau sambal"
+  ],
+  "isAvailable": true
+}
+
+### 4. PATCH produk berdasarkan ID (ubah harga dan deskripsi)
+PATCH {{baseUrl}}/products/1
+Content-Type: {{contentType}}
+
+{
+  "price": 26500,
+  "minOrder": "2 kg",
+  "isAvailable": true
+}
+
+### 5. DELETE produk berdasarkan ID
+DELETE {{baseUrl}}/products/6
+Accept: application/json
+
+### 6. Pengujian validasi data tidak valid (400 Bad Request)
+# - name terlalu pendek (< 3 karakter)
+# - description terlalu pendek (< 10 karakter)
+# - price bernilai negatif (< 0)
+# - field asing (extraField) ditolak oleh forbidNonWhitelisted
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+  "name": "AB",
+  "description": "Pendek",
+  "category": "",
+  "price": -5000,
+  "extraField": "tidak-valid"
+}
+
+### 7. Pengujian error ketika ID tidak ditemukan (404 Not Found)
+GET {{baseUrl}}/products/9999
+Accept: application/json
+
+### 8. Pengujian error ketika DELETE ID tidak ditemukan (404 Not Found)
+DELETE {{baseUrl}}/products/9999
+Accept: application/json
+
+### 9. Pengujian ConflictException saat menambah nama produk duplikat (409 Conflict)
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+  "name": "Ikan Lele Konsumsi (8–10 ekor/kg)",
+  "description": "Pengujian duplikasi nama produk yang sudah ada di in-memory array.",
+  "category": "Konsumsi (8–10 ekor/kg)",
+  "price": 25000
+}

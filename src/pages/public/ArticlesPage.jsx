@@ -120,7 +120,7 @@ export const ArticlesPage = () => {
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = '/public/assets/foto/kolam_lele_8e878a5c.jpeg';
+                  e.target.src = '/assets/foto/kolam_lele_8e878a5c.jpeg';
                 }}
               />
               <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-lg text-xs font-bold text-[#123F2E] shadow-xs">

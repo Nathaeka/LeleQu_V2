@@ -179,7 +179,7 @@ export const ArticleDetailPage = () => {
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           onError={(e) => {
-            e.target.src = '/public/assets/foto/kolam_lele_8e878a5c.jpeg';
+            e.target.src = '/assets/foto/kolam_lele_8e878a5c.jpeg';
           }}
         />
       </figure>

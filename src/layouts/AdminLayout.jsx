@@ -50,7 +50,7 @@ export const AdminLayout = () => {
         <div className="h-20 flex items-center px-6 border-b border-neutral-100 gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#123F2E] flex items-center justify-center p-1.5 shadow-xs overflow-hidden">
             <img
-              src="/public/assets/foto/logo_lele2_58eae7d6.png"
+              src="/assets/foto/logo_lele2_58eae7d6.png"
               alt="LeleQu"
               className="w-7 h-7 object-contain brightness-0 invert"
             />
@@ -139,7 +139,7 @@ export const AdminLayout = () => {
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#123F2E] flex items-center justify-center p-1 shadow-xs overflow-hidden">
                   <img
-                    src="/public/assets/foto/logo_lele2_58eae7d6.png"
+                    src="/assets/foto/logo_lele2_58eae7d6.png"
                     alt="LeleQu"
                     className="w-6 h-6 object-contain brightness-0 invert"
                   />

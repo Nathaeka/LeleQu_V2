@@ -168,7 +168,7 @@ export const DashboardOverview = () => {
                       alt={p.name}
                       className="w-10 h-10 rounded-xl object-cover border border-neutral-200 shrink-0"
                       onError={(e) => {
-                        e.target.src = '/public/assets/foto/Ikan_lele_segar_5b6a360e.jpg';
+                        e.target.src = '/assets/foto/Ikan_lele_segar_5b6a360e.jpg';
                       }}
                     />
                     <div>

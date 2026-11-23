@@ -21,7 +21,7 @@ export const AboutPage = () => {
       <section className="relative py-20 bg-[#123F2E] text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="/public/assets/foto/kolam_lele_8e878a5c.jpeg"
+            src="/assets/foto/kolam_lele_8e878a5c.jpeg"
             alt="Fasilitas Kolam LeleQu"
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-25"
@@ -76,7 +76,7 @@ export const AboutPage = () => {
           <div className="lg:col-span-6 space-y-4">
             <div className="aspect-4/3 rounded-3xl overflow-hidden border border-neutral-200 shadow-md">
               <img
-                src="/public/assets/foto/kolam_lele_tok_18245844.jpeg"
+                src="/assets/foto/kolam_lele_tok_18245844.jpeg"
                 alt="Fasilitas Kolam LeleQu"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
