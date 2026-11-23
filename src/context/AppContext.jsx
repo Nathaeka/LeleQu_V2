@@ -31,7 +31,6 @@ const sanitizeLoadedArticles = (items) => {
     thumbnail: (a.thumbnail || '').replace(/^\/public\//, '/'),
   }));
 };
-
 export const AppProvider = ({ children }) => {
   // Products state
   const [products, setProducts] = useState([]);
